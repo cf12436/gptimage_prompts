@@ -1079,6 +1079,33 @@ h2 {
   margin-left: 8px;
   color: #adbba0;
 }
+.share-panel {
+  margin-top: 18px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #080b06;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.share-panel label {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+}
+.share-panel input {
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+  font-size: 11px;
+  color: var(--accent);
+}
+.dialog-feedback {
+  margin-top: 14px;
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 1.8;
+}
 .prompt-dialog {
   padding: 0;
   border: 1px solid #ffffff20;

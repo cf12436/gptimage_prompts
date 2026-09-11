@@ -63,6 +63,10 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
   const [selected, setSelected] = useState<PromptCase | null>(null);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState("");
+  const [shareState, setShareState] = useState<
+    "idle" | "copying" | "copied" | "manual"
+  >("idle");
+  const shareRequest = useRef(0);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [dialogImage, setDialogImage] = useState<PromptCase | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -106,11 +110,14 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
     if (selected && dialog) {
       restoreFocus.current = document.activeElement as HTMLElement;
       setCopied(false);
+      setShareState("idle");
+      setToast("");
       setDialogImage(selected);
       dialog.showModal();
       const previous = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
+        shareRequest.current += 1;
         dialog.close();
         document.body.style.overflow = previous;
         restoreFocus.current?.focus();
@@ -199,6 +206,20 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
           "Copy failed. Select the text and copy it manually.",
         ),
       );
+    }
+  }
+  const shareUrl = selected
+    ? `${site.url}/?prompt=${selected.id}&lang=${language}#library`
+    : "";
+  async function share() {
+    if (!selected) return;
+    const request = ++shareRequest.current;
+    setShareState("copying");
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      if (shareRequest.current === request) setShareState("copied");
+    } catch {
+      if (shareRequest.current === request) setShareState("manual");
     }
   }
   function explore(term?: string) {
@@ -980,15 +1001,47 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 </button>
                 <button
                   className="pill-button liquid-glass"
-                  onClick={() =>
-                    void copy(
-                      `${site.url}/?prompt=${selected.id}&lang=${language}#library`,
-                    )
-                  }
+                  onClick={() => void share()}
+                  disabled={shareState === "copying"}
                 >
-                  {t("分享", "Share")} <ArrowUpRight size={15} />
+                  {shareState === "copied"
+                    ? t("链接已复制", "Link copied")
+                    : t("分享", "Share")}{" "}
+                  <ArrowUpRight size={15} />
                 </button>
               </div>
+              {shareState !== "idle" && (
+                <div className="share-panel">
+                  <p role="status">
+                    {shareState === "copied"
+                      ? t(
+                          "分享链接已复制，粘贴发送给朋友即可。",
+                          "Share link copied. Paste it to send to a friend.",
+                        )
+                      : shareState === "manual"
+                        ? t(
+                            "浏览器未允许复制，请选中下方链接手动复制。",
+                            "Clipboard access was denied. Select the link below and copy it manually.",
+                          )
+                        : t("正在复制分享链接…", "Copying share link…")}
+                  </p>
+                  <label htmlFor="share-link">
+                    {t("分享链接", "Share link")}
+                  </label>
+                  <input
+                    id="share-link"
+                    readOnly
+                    value={shareUrl}
+                    onFocus={(event) => event.currentTarget.select()}
+                    onClick={(event) => event.currentTarget.select()}
+                  />
+                </div>
+              )}
+              {toast && (
+                <p className="dialog-feedback" role="status">
+                  {toast}
+                </p>
+              )}
               <a
                 className="dialog-api text-link"
                 href={site.api}
@@ -1012,7 +1065,7 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
           </div>
         )}
       </dialog>
-      {toast && (
+      {toast && !selected && (
         <div className="toast liquid-glass" role="status">
           <Check size={17} />
           {toast}
