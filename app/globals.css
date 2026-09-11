@@ -1705,6 +1705,109 @@ h2 {
     margin: 30px auto;
   }
 }
+.library > p.results-note {
+  margin: 0 0 18px;
+  line-height: 1.7;
+}
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 2px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.language-switcher button {
+  min-height: 36px;
+  padding: 6px;
+  color: #929b87;
+}
+.language-switcher button[aria-pressed="true"] {
+  color: var(--foreground);
+}
+.language-switcher > span {
+  color: #59634f;
+}
+.document-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+html[lang="en"] .navbar {
+  gap: 16px;
+}
+html[lang="en"] .desktop-nav {
+  gap: 18px;
+}
+html[lang="en"] .nav-actions {
+  gap: 14px;
+}
+html[lang="en"] .hero-chinese {
+  letter-spacing: 0.02em;
+}
+html[lang="en"] .terminal-result {
+  line-height: 1.8;
+}
+html[lang="en"] .community-actions > a {
+  width: auto;
+}
+@media (min-width: 761px) and (max-width: 1200px) {
+  .desktop-nav {
+    display: none;
+  }
+  .mobile-menu-button {
+    display: flex;
+  }
+  .mobile-nav {
+    display: flex;
+    position: absolute;
+    right: 30px;
+    top: 90px;
+    flex-direction: column;
+    min-width: 230px;
+    padding: 14px 20px;
+    border-radius: 15px;
+    background: #0d130def;
+    backdrop-filter: blur(20px);
+  }
+  .mobile-nav a {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 13px 0;
+  }
+}
+@media (max-width: 760px) {
+  .language-switcher {
+    font-size: 10px;
+  }
+  .language-switcher button {
+    padding-inline: 4px;
+  }
+  .navbar .nav-actions,
+  html[lang="en"] .navbar .nav-actions {
+    gap: 6px;
+  }
+  html[lang="en"] .results-line {
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.7;
+  }
+  html[lang="en"] .results-note {
+    text-align: right;
+  }
+  html[lang="en"] .hero-proof {
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  html[lang="en"] .hero-bottom {
+    gap: 12px;
+  }
+  html[lang="en"] .scroll-link {
+    white-space: nowrap;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

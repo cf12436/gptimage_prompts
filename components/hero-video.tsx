@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
+import { useLanguage } from "./language-provider";
 
 /** Fade to black between plays; animation frames and timers are canceled on unmount. */
 export function HeroVideo() {
+  const { t } = useLanguage();
   const ref = useRef<HTMLVideoElement>(null);
   const frame = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -115,7 +117,11 @@ export function HeroVideo() {
       <button
         className="video-control liquid-glass icon-button"
         onClick={toggle}
-        aria-label={paused ? "播放背景视频" : "暂停背景视频"}
+        aria-label={
+          paused
+            ? t("播放背景视频", "Play background video")
+            : t("暂停背景视频", "Pause background video")
+        }
       >
         {paused ? <Play size={14} /> : <Pause size={14} />}
       </button>

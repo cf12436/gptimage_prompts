@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { categoryLabels, site, type PromptCase } from "@/lib/site";
 import { HeroVideo } from "./hero-video";
+import { LanguageSwitcher, useLanguage } from "./language-provider";
 
 const storageKey = "aisaasgo:bookmarks:v1";
 const pageSize = 24;
@@ -52,6 +53,7 @@ function CaseImage({
 }
 
 export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
+  const { language, t } = useLanguage();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("curated");
@@ -168,7 +170,12 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
     try {
       localStorage.setItem(storageKey, JSON.stringify(updated));
     } catch {
-      setToast("浏览器未允许本地存储，收藏仅在本次访问有效。");
+      setToast(
+        t(
+          "浏览器未允许本地存储，收藏仅在本次访问有效。",
+          "Local storage is unavailable. Bookmarks will only last for this visit.",
+        ),
+      );
     }
   }
   async function copy(text: string, prompt = false) {
@@ -179,20 +186,28 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
         if (copiedTimer.current) clearTimeout(copiedTimer.current);
         copiedTimer.current = setTimeout(() => setCopied(false), 2000);
       }
-      setToast("已复制，可以粘贴到你的创作工具中。");
+      setToast(
+        t(
+          "已复制，可以粘贴到你的创作工具中。",
+          "Copied. Paste it into your creative tool.",
+        ),
+      );
     } catch {
-      setToast("复制失败，请选中文字后手动复制。");
+      setToast(
+        t(
+          "复制失败，请选中文字后手动复制。",
+          "Copy failed. Select the text and copy it manually.",
+        ),
+      );
     }
   }
   function explore(term?: string) {
     if (term !== undefined) updateQuery(term);
-    document
-      .getElementById("library")
-      ?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "instant"
-          : "smooth",
-      });
+    document.getElementById("library")?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
     searchRef.current?.focus({ preventScroll: true });
   }
   function closeDialog() {
@@ -210,8 +225,11 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
         <HeroVideo />
         <div className="hero-shade" />
         <header className="site-header">
-          <nav className="navbar liquid-glass" aria-label="主导航">
-            <a href="/" className="brand">
+          <nav
+            className="navbar liquid-glass"
+            aria-label={t("主导航", "Main navigation")}
+          >
+            <a href={`/?lang=${language}`} className="brand">
               <span className="brand-symbol">
                 <Globe2 size={24} />
               </span>
@@ -220,13 +238,14 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
               </span>
             </a>
             <div className="desktop-nav">
-              <a href="#library">探索提示词</a>
-              <a href="#guide">使用指南</a>
+              <a href="#library">{t("探索提示词", "Explore prompts")}</a>
+              <a href="#guide">{t("使用指南", "How to use")}</a>
               <a href="#skill">
                 Agent Skill <span className="tiny-dot" />
               </a>
             </div>
             <div className="nav-actions">
+              <LanguageSwitcher />
               <a
                 className="github-nav"
                 href={site.github}
@@ -243,11 +262,15 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                免费交流群 <ArrowUpRight size={14} />
+                {t("免费交流群", "Free community")} <ArrowUpRight size={14} />
               </a>
               <button
                 className="mobile-menu-button icon-button"
-                aria-label={mobileMenu ? "关闭导航" : "打开导航"}
+                aria-label={
+                  mobileMenu
+                    ? t("关闭导航", "Close navigation")
+                    : t("打开导航", "Open navigation")
+                }
                 aria-expanded={mobileMenu}
                 onClick={() => setMobileMenu(!mobileMenu)}
               >
@@ -258,10 +281,10 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
           {mobileMenu && (
             <div className="mobile-nav liquid-glass">
               {[
-                ["#library", "探索提示词"],
-                ["#guide", "使用指南"],
+                ["#library", t("探索提示词", "Explore prompts")],
+                ["#guide", t("使用指南", "How to use")],
                 ["#skill", "Agent Skill"],
-                [site.community, "免费微信交流群"],
+                [site.community, t("免费微信交流群", "Free WeChat community")],
               ].map(([href, label]) => (
                 <a key={href} href={href} onClick={() => setMobileMenu(false)}>
                   {label}
@@ -280,11 +303,19 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
             <br />
             with an <em>idea.</em>
           </h1>
-          <p className="hero-chinese">让想象，有迹可循。</p>
+          <p className="hero-chinese">
+            {t("让想象，有迹可循。", "Give your imagination a place to start.")}
+          </p>
           <p className="hero-description">
-            发现值得收藏的图像提示词。
+            {t(
+              "发现值得收藏的图像提示词。",
+              "Discover image prompts worth saving.",
+            )}
             <br className="mobile-only" />
-            从一个灵感，到你的下一件作品。
+            {t(
+              "从一个灵感，到你的下一件作品。",
+              "From a spark of inspiration to your next creation.",
+            )}
           </p>
           <form
             className="hero-search liquid-glass"
@@ -295,18 +326,29 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
           >
             <Search size={19} aria-hidden="true" />
             <input
-              aria-label="搜索灵感"
-              placeholder="寻找灵感，试试「电影感」「产品摄影」…"
+              aria-label={t("搜索灵感", "Search for inspiration")}
+              placeholder={t(
+                "寻找灵感，试试「电影感」「产品摄影」…",
+                "Find inspiration: try “cinematic” or “product photography”…",
+              )}
               value={query}
               onChange={(event) => updateQuery(event.target.value)}
             />
-            <button className="search-submit" aria-label="探索搜索结果">
+            <button
+              className="search-submit"
+              aria-label={t("探索搜索结果", "Explore search results")}
+            >
               <ArrowRight size={20} />
             </button>
           </form>
           <div className="hero-popular">
-            <span>灵感关键词</span>
-            {["海报", "摄影", "品牌", "3D"].map((term) => (
+            <span>{t("灵感关键词", "Popular keywords")}</span>
+            {[
+              t("海报", "poster"),
+              t("摄影", "photography"),
+              t("品牌", "brand"),
+              "3D",
+            ].map((term) => (
               <button key={term} onClick={() => explore(term)}>
                 {term}
                 <ArrowUpRight size={10} />
@@ -317,15 +359,16 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
         <div className="hero-bottom">
           <div className="hero-proof">
             <span>
-              <strong>{cases.length}</strong> 精选提示词
+              <strong>{cases.length}</strong>{" "}
+              {t("精选提示词", "curated prompts")}
             </span>
             <i />
-            <span>免费开放</span>
+            <span>{t("免费开放", "Free and open")}</span>
             <i />
-            <span>无需登录</span>
+            <span>{t("无需登录", "No sign-in needed")}</span>
           </div>
           <a href="#library" className="scroll-link">
-            向下探索 <ArrowDown size={14} />
+            {t("向下探索", "Scroll to explore")} <ArrowDown size={14} />
           </a>
           <span className="hero-edition">THE PROMPT COLLECTION — VOL. 01</span>
         </div>
@@ -343,9 +386,15 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
         <div className="library-heading">
           <div>
             <h2 id="library-title">
-              找到你的下一次 <em>灵感。</em>
+              {t("找到你的下一次 ", "Find your next ")}
+              <em>{t("灵感。", "inspiration.")}</em>
             </h2>
-            <p>好作品的起点，往往是一句恰到好处的提示词。</p>
+            <p>
+              {t(
+                "好作品的起点，往往是一句恰到好处的提示词。",
+                "Great work often starts with just the right prompt.",
+              )}
+            </p>
           </div>
           <a
             className="text-link"
@@ -353,7 +402,8 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
             target="_blank"
             rel="noreferrer"
           >
-            分享你的提示词 <ArrowUpRight size={16} />
+            {t("分享你的提示词", "Share your prompt")}{" "}
+            <ArrowUpRight size={16} />
           </a>
         </div>
         <div className="library-toolbar">
@@ -361,15 +411,18 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
             <Search size={17} />
             <input
               ref={searchRef}
-              aria-label="搜索提示词"
+              aria-label={t("搜索提示词", "Search prompts")}
               value={query}
               onChange={(event) => updateQuery(event.target.value)}
-              placeholder="搜索提示词、风格、场景…"
+              placeholder={t(
+                "搜索提示词、风格、场景…",
+                "Search prompts, styles, scenes…",
+              )}
             />
             {query && (
               <button
                 className="icon-button"
-                aria-label="清空搜索"
+                aria-label={t("清空搜索", "Clear search")}
                 onClick={() => updateQuery("")}
               >
                 <X size={15} />
@@ -386,32 +439,38 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
               }}
             >
               <Bookmark size={15} fill={savedOnly ? "currentColor" : "none"} />
-              我的收藏<span>{bookmarks.length}</span>
+              {t("我的收藏", "My bookmarks")}
+              <span>{bookmarks.length}</span>
             </button>
             <div className="sort-select">
               <select
-                aria-label="提示词排序"
+                aria-label={t("提示词排序", "Sort prompts")}
                 value={sort}
                 onChange={(event) => {
                   setSort(event.target.value);
                   setLimit(pageSize);
                 }}
               >
-                <option value="curated">精选优先</option>
-                <option value="newest">最新收录</option>
-                <option value="oldest">最早收录</option>
+                <option value="curated">
+                  {t("精选优先", "Featured first")}
+                </option>
+                <option value="newest">{t("最新收录", "Newest first")}</option>
+                <option value="oldest">{t("最早收录", "Oldest first")}</option>
               </select>
               <ChevronDown size={13} />
             </div>
           </div>
         </div>
-        <div className="category-list" aria-label="提示词分类">
+        <div
+          className="category-list"
+          aria-label={t("提示词分类", "Prompt categories")}
+        >
           <button
             className={category === "all" ? "active" : ""}
             aria-pressed={category === "all"}
             onClick={() => updateCategory("all")}
           >
-            全部灵感 <span>{cases.length}</span>
+            {t("全部灵感", "All inspiration")} <span>{cases.length}</span>
           </button>
           {Object.keys(counts)
             .sort((a, b) => (counts[b] || 0) - (counts[a] || 0))
@@ -422,7 +481,7 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 aria-pressed={category === value}
                 onClick={() => updateCategory(value)}
               >
-                {categoryLabels[value] || value}
+                {language === "en" ? value : categoryLabels[value] || value}
                 <span>{counts[value]}</span>
               </button>
             ))}
@@ -430,16 +489,28 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
         <div className="results-line">
           <p aria-live="polite">
             {savedOnly
-              ? "你的本地收藏"
+              ? t("你的本地收藏", "Your local bookmarks")
               : category === "all"
-                ? "全部创意"
-                : categoryLabels[category]}
-            <span> / {results.length} 个提示词</span>
+                ? t("全部创意", "All ideas")
+                : language === "en"
+                  ? category
+                  : categoryLabels[category]}
+            <span>
+              {" "}
+              / {results.length} {t("个提示词", "prompts")}
+            </span>
           </p>
           <span className="results-note">
-            <span className="tiny-dot" /> 随时复制，自由创作
+            <span className="tiny-dot" />{" "}
+            {t("随时复制，自由创作", "Copy anytime. Create freely.")}
           </span>
         </div>
+        <p className="results-note">
+          {t(
+            "案例标题和提示词保留原始语言。",
+            "Case titles and prompts retain their original language.",
+          )}
+        </p>
         {results.length ? (
           <div className="prompt-grid">
             {results.slice(0, limit).map((item, index) => (
@@ -448,22 +519,23 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                   <button
                     className="card-open"
                     onClick={() => setSelected(item)}
-                    aria-label={`查看提示词：${item.title}`}
+                    aria-label={`${t("查看提示词：", "View prompt: ")}${item.title}`}
                   >
                     <CaseImage item={item} eager={index < 4} />
                     <span className="card-image-shade" />
                     <span className="card-preview-label">
-                      查看完整提示词 <ArrowUpRight size={15} />
+                      {t("查看完整提示词", "View full prompt")}{" "}
+                      <ArrowUpRight size={15} />
                     </span>
                   </button>
                   {item.featured && (
                     <span className="featured-badge liquid-glass">
-                      <Sparkles size={11} /> 编辑精选
+                      <Sparkles size={11} /> {t("编辑精选", "Editor's pick")}
                     </span>
                   )}
                   <button
                     className={`card-bookmark liquid-glass icon-button ${bookmarks.includes(item.id) ? "is-saved" : ""}`}
-                    aria-label={`${bookmarks.includes(item.id) ? "取消收藏" : "收藏"}：${item.title}`}
+                    aria-label={`${bookmarks.includes(item.id) ? t("取消收藏", "Remove bookmark") : t("收藏", "Bookmark")}${t("：", ": ")}${item.title}`}
                     aria-pressed={bookmarks.includes(item.id)}
                     onClick={() => toggleBookmark(item.id)}
                   >
@@ -478,7 +550,9 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 <div className="card-info">
                   <div className="card-meta">
                     <span>
-                      {categoryLabels[item.category] || item.category}
+                      {language === "en"
+                        ? item.category
+                        : categoryLabels[item.category] || item.category}
                     </span>
                     <span>#{String(item.id).padStart(3, "0")}</span>
                   </div>
@@ -495,11 +569,11 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                     </span>
                     <button
                       className="quick-copy"
-                      aria-label={`复制提示词：${item.title}`}
+                      aria-label={`${t("复制提示词：", "Copy prompt: ")}${item.title}`}
                       onClick={() => void copy(item.prompt)}
                     >
                       <Copy size={13} />
-                      <span>复制</span>
+                      <span>{t("复制", "Copy")}</span>
                     </button>
                   </div>
                 </div>
@@ -510,12 +584,23 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
           <div className="empty-state">
             <Search size={32} />
             <h3>
-              {savedOnly ? "还没有匹配的收藏" : "换一个关键词，发现新的灵感"}
+              {savedOnly
+                ? t("还没有匹配的收藏", "No matching bookmarks yet")
+                : t(
+                    "换一个关键词，发现新的灵感",
+                    "Try another keyword to discover new inspiration",
+                  )}
             </h3>
             <p>
               {savedOnly
-                ? "点击图片右上角的收藏图标，保存在当前浏览器，无需账户。"
-                : "试试更简短的词，或清除分类条件。中英文关键词都可以搜索。"}
+                ? t(
+                    "点击图片右上角的收藏图标，保存在当前浏览器，无需账户。",
+                    "Click the bookmark icon at the top right of an image to save it in this browser. No account needed.",
+                  )
+                : t(
+                    "试试更简短的词，或清除分类条件。中英文关键词都可以搜索。",
+                    "Try a shorter keyword or clear the category filter. You can search in Chinese or English.",
+                  )}
             </p>
             <button
               className="pill-button liquid-glass"
@@ -525,7 +610,8 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 setSavedOnly(false);
               }}
             >
-              浏览全部提示词 <ArrowRight size={15} />
+              {t("浏览全部提示词", "Browse all prompts")}{" "}
+              <ArrowRight size={15} />
             </button>
           </div>
         )}
@@ -535,12 +621,14 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
               className="load-more liquid-glass"
               onClick={() => setLimit(limit + pageSize)}
             >
-              探索更多灵感 <ArrowDown size={15} />
+              {t("探索更多灵感", "Explore more inspiration")}{" "}
+              <ArrowDown size={15} />
               <span>{Math.min(pageSize, results.length - limit)} more</span>
             </button>
           )}
           <p>
-            已展示 {Math.min(limit, results.length)} / {results.length} 个提示词
+            {t("已展示", "Showing")} {Math.min(limit, results.length)} /{" "}
+            {results.length} {t("个提示词", "prompts")}
           </p>
         </div>
       </section>
@@ -556,14 +644,17 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
         </div>
         <div className="guide-heading">
           <h2 id="guide-title">
-            灵感到作品，
+            {t("灵感到作品，", "From inspiration to creation,")}
             <br />
-            <em>只差一次尝试。</em>
+            <em>{t("只差一次尝试。", "just give it a try.")}</em>
           </h2>
           <p>
-            不必从空白开始。
+            {t("不必从空白开始。", "You don't have to start from scratch.")}
             <br />
-            把好的提示词，变成你自己的创作语言。
+            {t(
+              "把好的提示词，变成你自己的创作语言。",
+              "Make great prompts part of your own creative language.",
+            )}
           </p>
         </div>
         <div className="steps-grid">
@@ -571,25 +662,31 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
             {
               n: "01",
               icon: Search,
-              title: "发现一种可能",
-              description:
+              title: t("发现一种可能", "Discover a possibility"),
+              description: t(
                 "按场景与风格探索案例，打开图片查看完整提示词，找到与你的想法相近的起点。",
+                "Explore examples by scene and style. Open an image to see the full prompt and find a starting point close to your idea.",
+              ),
               tag: "FIND YOUR INSPIRATION",
             },
             {
               n: "02",
               icon: Copy,
-              title: "复制，再加一点你",
-              description:
+              title: t("复制，再加一点你", "Copy, then make it yours"),
+              description: t(
                 "一键复制提示词，替换主体、文案、颜色和画面比例。遇到参考图要求时，上传你有权使用的图片。",
+                "Copy a prompt in one click, then change the subject, text, colors, and aspect ratio. If a reference image is required, upload one you have permission to use.",
+              ),
               tag: "MAKE IT YOUR OWN",
             },
             {
               n: "03",
               icon: Sparkles,
-              title: "让想象成为画面",
-              description:
+              title: t("让想象成为画面", "Turn imagination into images"),
+              description: t(
                 "粘贴到支持图像生成的工具中。观察结果，逐步调整构图和细节，让下一次生成更接近心中所想。",
+                "Paste it into a tool that supports image generation. Review the result and refine the composition and details to bring each generation closer to your vision.",
+              ),
               tag: "CREATE SOMETHING NEW",
             },
           ].map((step) => (
@@ -605,7 +702,10 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
           ))}
         </div>
         <p className="usage-note">
-          提示词浏览、复制与交流群均免费。第三方图像生成服务可能单独计费；示例效果随模型、参数与参考图片而变化。
+          {t(
+            "提示词浏览、复制与交流群均免费。第三方图像生成服务可能单独计费；示例效果随模型、参数与参考图片而变化。",
+            "Browsing and copying prompts and joining the community are free. Third-party image generation services may charge separately; results vary by model, settings, and reference images.",
+          )}
         </p>
       </section>
 
@@ -620,13 +720,16 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
               <Terminal size={14} /> MADE FOR YOUR AGENT
             </span>
             <h2 id="skill-title">
-              把灵感库，
+              {t("把灵感库，", "Bring the inspiration library")}
               <br />
-              交给你的 <em>Agent.</em>
+              {t("交给你的 ", "to your ")}
+              <em>Agent.</em>
             </h2>
             <p>
-              安装 AISaasGo Image Prompts Skill，让你的 AI
-              助手根据目标挑选案例、组织构图，把模糊的想法整理成可用的提示词。
+              {t(
+                "安装 AISaasGo Image Prompts Skill，让你的 AI 助手根据目标挑选案例、组织构图，把模糊的想法整理成可用的提示词。",
+                "Install AISaasGo Image Prompts Skill so your AI assistant can select examples for your goals, plan compositions, and turn rough ideas into usable prompts.",
+              )}
             </p>
             <a
               className="text-link"
@@ -634,7 +737,8 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
               target="_blank"
               rel="noreferrer"
             >
-              了解 AISaasGo Skill <ArrowUpRight size={16} />
+              {t("了解 AISaasGo Skill", "Learn about AISaasGo Skill")}{" "}
+              <ArrowUpRight size={16} />
             </a>
           </div>
           <div className="terminal-card">
@@ -648,13 +752,21 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
               <Terminal size={14} />
             </div>
             <div className="terminal-body">
-              <span className="terminal-comment"># 安装开源提示词 Skill</span>
+              <span className="terminal-comment">
+                {t(
+                  "# 安装开源提示词 Skill",
+                  "# Install the open-source prompt Skill",
+                )}
+              </span>
               <div className="terminal-command">
                 <span>$</span>
                 <code>{site.skillCommand}</code>
                 <button
                   className="icon-button"
-                  aria-label="复制 Skill 安装命令"
+                  aria-label={t(
+                    "复制 Skill 安装命令",
+                    "Copy Skill installation command",
+                  )}
                   onClick={() => void copy(site.skillCommand)}
                 >
                   <Copy size={16} />
@@ -662,16 +774,26 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
               </div>
               <div className="terminal-divider" />
               <span className="terminal-comment">
-                # 然后，试着对你的 AI 助手说
+                {t(
+                  "# 然后，试着对你的 AI 助手说",
+                  "# Then try asking your AI assistant",
+                )}
               </span>
               <p className="terminal-example">
-                “用 AISaasGo 提示词库，帮我设计一张
+                {t(
+                  "“用 AISaasGo 提示词库，帮我设计一张",
+                  "“Use the AISaasGo prompt library to design",
+                )}
                 <br />
-                极简风格的咖啡品牌海报。”
+                {t(
+                  "极简风格的咖啡品牌海报。”",
+                  "a minimalist coffee brand poster for me.”",
+                )}
               </p>
               <div className="terminal-result">
-                <CheckCheck size={15} /> 匹配风格 <span>→</span> 自定义细节{" "}
-                <span>→</span> 输出提示词
+                <CheckCheck size={15} /> {t("匹配风格", "Match style")}{" "}
+                <span>→</span> {t("自定义细节", "Customize details")}{" "}
+                <span>→</span> {t("输出提示词", "Generate prompt")}
               </div>
             </div>
           </div>
@@ -681,12 +803,19 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
       <section className="community-section section-container">
         <span className="eyebrow">BETTER WHEN SHARED</span>
         <h2>
-          创作这件事，<em>一起更有趣。</em>
+          {t("创作这件事，", "Creating is ")}
+          <em>{t("一起更有趣。", "more fun together.")}</em>
         </h2>
         <p>
-          交流提示词、分享新作品，和同样热爱 AI 创作的人一起探索。
+          {t(
+            "交流提示词、分享新作品，和同样热爱 AI 创作的人一起探索。",
+            "Exchange prompts, share your latest work, and explore with others who love creating with AI.",
+          )}
           <br />
-          没有付费门槛，只有关于创作的好奇心。
+          {t(
+            "没有付费门槛，只有关于创作的好奇心。",
+            "No paid membership required. Just bring your creative curiosity.",
+          )}
         </p>
         <div className="community-actions">
           <a
@@ -695,7 +824,9 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Users size={17} /> 加入免费微信交流群 <ArrowUpRight size={16} />
+            <Users size={17} />{" "}
+            {t("加入免费微信交流群", "Join the free WeChat community")}{" "}
+            <ArrowUpRight size={16} />
           </a>
           <a
             className="pill-button liquid-glass"
@@ -703,14 +834,15 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Github size={17} /> 一起共建开源 <ArrowUpRight size={16} />
+            <Github size={17} /> {t("一起共建开源", "Contribute on GitHub")}{" "}
+            <ArrowUpRight size={16} />
           </a>
         </div>
       </section>
 
       <footer className="site-footer section-container">
         <div className="footer-main">
-          <a className="brand" href="/">
+          <a className="brand" href={`/?lang=${language}`}>
             <Globe2 size={23} />
             <span>
               AISaasGo<span className="brand-suffix"> / IMAGE</span>
@@ -724,21 +856,27 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
             <a href={site.github} target="_blank" rel="noreferrer">
               GitHub <ArrowUpRight size={12} />
             </a>
-            <a href="/privacy/">隐私说明</a>
+            <a href={`/privacy/?lang=${language}`}>
+              {t("隐私说明", "Privacy notice")}
+            </a>
           </div>
         </div>
         <div className="footer-bottom">
           <span>
-            © {new Date().getFullYear()} AISaasGo · 开源代码采用 MIT 许可
+            © {new Date().getFullYear()} AISaasGo ·{" "}
+            {t("开源代码采用 MIT 许可", "Open-source code licensed under MIT")}
           </span>
           <span>
-            案例版权归原作者所有 ·{" "}
+            {t(
+              "案例版权归原作者所有 ·",
+              "Examples belong to their original creators ·",
+            )}{" "}
             <a
               href={`${site.github}/blob/main/ATTRIBUTION.md`}
               target="_blank"
               rel="noreferrer"
             >
-              来源与致谢
+              {t("来源与致谢", "Sources and credits")}
             </a>
           </span>
           <span className="footer-signoff">
@@ -763,7 +901,7 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
           <div className="dialog-inner">
             <button
               className="dialog-close icon-button liquid-glass"
-              aria-label="关闭提示词详情"
+              aria-label={t("关闭提示词详情", "Close prompt details")}
               onClick={closeDialog}
             >
               <X size={21} />
@@ -778,13 +916,17 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                来源：{selected.sourceLabel || "原作者"}{" "}
+                {t("来源：", "Source: ")}
+                {selected.sourceLabel || t("原作者", "Original creator")}{" "}
                 <ArrowUpRight size={13} />
               </a>
             </div>
             <div className="dialog-content">
               <span className="eyebrow">
-                {categoryLabels[selected.category]} / #{selected.id}
+                {language === "en"
+                  ? selected.category
+                  : categoryLabels[selected.category]}{" "}
+                / #{selected.id}
               </span>
               <h2 id="dialog-title">{selected.title}</h2>
               <div className="dialog-tags">
@@ -793,8 +935,10 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 ))}
               </div>
               <div className="prompt-label">
-                <span>完整提示词</span>
-                <span>可自由复制与修改</span>
+                <span>{t("完整提示词", "Full prompt")}</span>
+                <span>
+                  {t("可自由复制与修改", "Copy and customize freely")}
+                </span>
               </div>
               <pre
                 className="prompt-text"
@@ -804,8 +948,10 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 {selected.prompt}
               </pre>
               <p className="dialog-hint">
-                将 [占位内容]
-                替换为你的需求；如提示词提及参考图，请在生成工具中上传对应图片。
+                {t(
+                  "将 [占位内容] 替换为你的需求；如提示词提及参考图，请在生成工具中上传对应图片。",
+                  "Replace [placeholders] with your requirements. If the prompt mentions reference images, upload the corresponding images in your generation tool.",
+                )}
               </p>
               <div className="dialog-actions">
                 <button
@@ -813,7 +959,9 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                   onClick={() => void copy(selected.prompt, true)}
                 >
                   {copied ? <Check size={16} /> : <Copy size={16} />}
-                  {copied ? "已复制提示词" : "复制提示词"}
+                  {copied
+                    ? t("已复制提示词", "Prompt copied")
+                    : t("复制提示词", "Copy prompt")}
                 </button>
                 <button
                   className="pill-button liquid-glass"
@@ -826,15 +974,19 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                       bookmarks.includes(selected.id) ? "currentColor" : "none"
                     }
                   />
-                  {bookmarks.includes(selected.id) ? "已收藏" : "收藏"}
+                  {bookmarks.includes(selected.id)
+                    ? t("已收藏", "Bookmarked")
+                    : t("收藏", "Bookmark")}
                 </button>
                 <button
                   className="pill-button liquid-glass"
                   onClick={() =>
-                    void copy(`${site.url}/?prompt=${selected.id}#library`)
+                    void copy(
+                      `${site.url}/?prompt=${selected.id}&lang=${language}#library`,
+                    )
                   }
                 >
-                  分享 <ArrowUpRight size={15} />
+                  {t("分享", "Share")} <ArrowUpRight size={15} />
                 </button>
               </div>
               <a
@@ -843,11 +995,18 @@ export function PromptLibrary({ cases }: { cases: PromptCase[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <Code2 size={16} /> 前往 AISaasGo · 图像生成与 API{" "}
+                <Code2 size={16} />{" "}
+                {t(
+                  "前往 AISaasGo · 图像生成与 API",
+                  "Visit AISaasGo · Image generation and API",
+                )}{" "}
                 <ArrowUpRight size={14} />
               </a>
               <p className="dialog-disclaimer">
-                本站不调用付费生图接口，不收集 API 密钥。
+                {t(
+                  "本站不调用付费生图接口，不收集 API 密钥。",
+                  "This site does not call paid image generation APIs or collect API keys.",
+                )}
               </p>
             </div>
           </div>

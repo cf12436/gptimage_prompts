@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
 import "./globals.css";
+import { LanguageProvider, SkipLink } from "@/components/language-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -48,10 +49,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <a className="skip-link" href="#library">
-          跳转到提示词库
-        </a>
-        {children}
+        <LanguageProvider>
+          <SkipLink />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );
