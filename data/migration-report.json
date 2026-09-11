@@ -1,0 +1,20 @@
+{
+  "repository": "https://github.com/cf12436/gptimage_prompts",
+  "upstreamRepository": "https://github.com/freestylefly/awesome-gpt-image-2",
+  "cases": 541,
+  "categories": 13,
+  "templates": 22,
+  "caseImages": 541,
+  "referencedImages": 554,
+  "migratedImageFiles": 554,
+  "totalImageBytes": 158464100,
+  "imageExtensions": {
+    ".jpg": 541,
+    ".png": 13
+  },
+  "missingImages": 0,
+  "imageHashMismatches": 0,
+  "promptsAndSourceAttributionUnchanged": true,
+  "skillBundleMatchesLibrary": true,
+  "upstreamLicenseUnchanged": true
+}
