@@ -16,7 +16,7 @@ disable-model-invocation: true
 - [完整案例](references/cases.json)：选定案例后必须读取其完整 `prompt`，不可把 `promptPreview` 当作完整提示词。
 - [风格与模板](references/style-library.json)：22 个模板、适用场景、注意事项和 `exampleCases`。
 - [改写与服务边界](references/usage.md)：参考图、版权、迭代和输出要求。
-- [来源声明](ATTRIBUTION.md) 与 [MIT 许可](LICENSE)。
+- 仓库根目录的[来源声明](https://github.com/cf12436/gptimage_prompts/blob/main/ATTRIBUTION.md)与 [MIT 许可](https://github.com/cf12436/gptimage_prompts/blob/main/LICENSE)（在线查阅）。
 
 可直接用文件搜索工具检索以上资料。若有 Node.js，也可执行 `node <技能目录>/scripts/search.mjs 咖啡 海报` 查找候选，或 `node <技能目录>/scripts/search.mjs --id 543` 读取指定案例全文。该脚本只读取本地数据，不联网、不调用 API。
 

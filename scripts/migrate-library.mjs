@@ -69,7 +69,6 @@ if (!validateOnly) {
     index.push('');
   }
   await save(path.join(root, skill, 'references/case-index.md'), `${index.join('\n')}\n`);
-  await save(path.join(root, skill, 'LICENSE'), await readFile(path.join(source, 'LICENSE'), 'utf8'));
 }
 const actual = await json(path.join(root, 'data/cases.json'));
 assert.deepEqual(actual, migrated, 'Case content or attribution changed');
